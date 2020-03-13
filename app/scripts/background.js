@@ -4,7 +4,6 @@
 
 
 // these need to run before anything else
-import './lib/freezeGlobals'
 import setupFetchDebugging from './lib/setupFetchDebugging'
 
 setupFetchDebugging()
