@@ -12,8 +12,7 @@ const rename = require('gulp-rename')
 const pify = require('pify')
 const endOfStream = pify(require('end-of-stream'))
 const labeledStreamSplicer = require('labeled-stream-splicer').obj
-const createLavamoatPacker = require('lavamoat-browserify/src/createCustomPack')
-const lavamoatArgs = require('lavamoat-browserify').args
+const lavamoat = require('lavamoat-browserify')
 const { createTask, composeParallel, composeSeries, runInChildProcess } = require('./task')
 const { promises: fs } = require('fs')
 
@@ -23,16 +22,17 @@ module.exports = createScriptTasks
 function createScriptTasks ({ browserPlatforms, livereload }) {
 
   const prod = createBundleTasks('prod')
+  const prodConfig = createBundleTasks('prod:config', { writeAutoConfig: true })
   const dev = createBundleTasks('dev', { devMode: true, livereload })
   const testDev = createBundleTasks('testDev', { test: true, devMode: true, livereload })
   const test = createBundleTasks('test', { test: true })
-  const lavamoat = createLavamoatTask('lavamoat:dashboard')
+  const lavamoatDashboard = createLavamoatTask('lavamoat:dashboard')
 
-  return { prod, dev, testDev, test, lavamoat }
+  return { prod, prodConfig, dev, testDev, test, lavamoatDashboard }
 
 
-  function createBundleTasks (label, { devMode, test, livereload } = {}) {
-    const primaryBundlesTask = createTask(`scripts:${label}:factor`, createFactorBundles({ test, devMode }))
+  function createBundleTasks (label, { devMode, test, livereload, writeAutoConfig } = {}) {
+    const primaryBundlesTask = createTask(`scripts:${label}:factor`, createFactorBundles({ test, devMode, writeAutoConfig }))
     const contentscriptTask = createTask(`scripts:${label}:contentscript`, createBuildContentscriptTask({ test, devMode }))
     return createTask(`scripts:${label}`, composeParallel(...[
       runInChildProcess(primaryBundlesTask),
@@ -81,38 +81,65 @@ function createScriptTasks ({ browserPlatforms, livereload }) {
     )
   }
 
-  function createFactorBundles ({ devMode, test } = {}) {
+  function createFactorBundles ({ devMode, test, writeAutoConfig } = {}) {
     return async function buildFactor () {
       // create bundler setup and apply defaults
       const { bundlerOpts, events } = createBundlerSetup()
       setupBundlerDefaults({ bundlerOpts, events, devMode, test, watchify: devMode })
 
+      // load lavamoat config
+      await fs.mkdir('./lavamoat', { recursive: true })
+      const config = lavamoat.loadConfig({ writeAutoConfig })
+      console.log('config', config)
+
       // add factor-bundle specific options
       Object.assign(bundlerOpts, {
+        // add recommended lavamoat args
+        ...lavamoat.args,
         // ui + background, bify-package-factor will split into separate bundles
         entries: ['app/scripts/ui.js', 'app/scripts/background.js'],
         // dedupe breaks under bundle factoring
         dedupe: false,
         plugin: [
           ...bundlerOpts.plugin,
+          // add lavamoat for global usage detection
+          // ['../lavamoat-browserify/src/index.js', {
+          ['lavamoat-browserify', {
+            // config: './dist/lavamoat/lavamoat-config.json',
+            writeAutoConfig,
+            // temp: for stack traces
+            debugMode: true,
+          }],
           // factor code into multiple bundles and emit as vinyl file objects
-          'bify-package-factor',
+          ['bify-package-factor', {
+            createPacker: (opts) => {
+              return lavamoat.createLavamoatPacker({
+                ...opts,
+                config,
+                includePrelude: false,
+                pruneConfig: true,
+              })
+            },
+          }],
         ],
       })
 
-      // instrument build pipeline
-      events.on('pipeline', (pipeline) => {
-        // rename file. we put it here so sourcemaps first load correctly
-        pipeline.get('sourcemaps:write').unshift(rename((path) => {
-          // remove relative directory from source
-          path.dirname = '.'
-        }))
-        // setup bundle destination
-        browserPlatforms.forEach((platform) => {
-          const dest = `./dist/${platform}`
-          pipeline.get('dest').push(gulp.dest(dest))
+      // only write bundles to disk if not generating config
+      if (!writeAutoConfig) {
+        // instrument build pipeline
+        events.on('pipeline', (pipeline) => {
+          // rename file. we put it here so sourcemaps first load correctly
+          pipeline.get('sourcemaps:write').unshift(rename((path) => {
+            // remove relative directory from source
+            path.dirname = '.'
+          }))
+          // setup bundle destination
+          browserPlatforms.forEach((platform) => {
+            const dest = `./dist/${platform}`
+            pipeline.get('dest').push(gulp.dest(dest))
+          })
         })
-      })
+      }
 
       await executeBundle({ bundlerOpts, events })
     }
@@ -154,7 +181,7 @@ function createScriptTasks ({ browserPlatforms, livereload }) {
       // add factor-bundle specific options
       Object.assign(bundlerOpts, {
         // add recommended lavamoat args
-        ...lavamoatArgs,
+        ...lavamoat.args,
         // ui + background, bify-package-factor will split into separate bundles
         entries: ['app/scripts/ui.js', 'app/scripts/background.js'],
         // dedupe breaks under bundle factoring
@@ -168,11 +195,12 @@ function createScriptTasks ({ browserPlatforms, livereload }) {
           }],
           // factor code into multiple bundles and emit as vinyl file objects
           ['bify-package-factor', {
-            createPacker: () => {
-              return createLavamoatPacker({
-                raw: true,
+            createPacker: (opts) => {
+              return lavamoat.createLavamoatPacker({
+                ...opts,
                 config: {},
                 includePrelude: false,
+                pruneConfig: true,
               })
             },
           }],
@@ -249,15 +277,15 @@ function setupBundlerDefaults ({ bundlerOpts, events, devMode, test, watchify })
   // instrument pipeline
   events.on('pipeline', (pipeline) => {
 
-    // setup minify
-    if (!devMode) {
-      pipeline.get('minify').push(buffer())
-      pipeline.get('minify').push(terser({
-        mangle: {
-          reserved: [ 'MetamaskInpageProvider' ],
-        },
-      }))
-    }
+    // // setup minify
+    // if (!devMode) {
+    //   pipeline.get('minify').push(buffer())
+    //   pipeline.get('minify').push(terser({
+    //     mangle: {
+    //       reserved: [ 'MetamaskInpageProvider' ],
+    //     },
+    //   }))
+    // }
 
   })
 }

@@ -17347,10 +17347,10 @@ latest-version@^5.0.0:
   dependencies:
     package-json "^6.3.0"
 
-lavamoat-browserify@^7.0.1:
-  version "7.0.1"
-  resolved "https://registry.yarnpkg.com/lavamoat-browserify/-/lavamoat-browserify-7.0.1.tgz#4dfbb88eb6565334d2e2d16516ac83fd663f5d29"
-  integrity sha512-oUfi50fXh9rYr2lFyb5e4yQI2OGlsPX0GEMeQ4K61qKIDsNorLbJDck0xzmcnCh4StoCbm5vM/POXoohzrU7Jw==
+lavamoat-browserify@^8.1.2:
+  version "8.1.2"
+  resolved "https://registry.yarnpkg.com/lavamoat-browserify/-/lavamoat-browserify-8.1.2.tgz#3fc682b71a079746080b069942b20d5c591ca167"
+  integrity sha512-rlrQhkFbSWR+xoWvjYdIgHLWcDvQuJLLHRxctkelGl59qCmxyZuC0uBexo/VoZBc+JnLkzxw4fgOgVT/WvR22Q==
   dependencies:
     JSONStream "^1.3.5"
     acorn-globals "^4.3.3"
@@ -17358,7 +17358,6 @@ lavamoat-browserify@^7.0.1:
     browserify-transform-tools "^1.7.0"
     combine-source-map "^0.8.0"
     cytoplasm "^2.0.2"
-    defined "^1.0.0"
     fromentries "^1.1.0"
     json-stable-stringify "^1.0.1"
     merge-deep "^3.0.2"
