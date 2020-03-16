@@ -87,7 +87,6 @@
         "currency-formatter": true,
         "d3": true,
         "debounce-stream": true,
-        "deep-freeze-strict": true,
         "dnode": true,
         "end-of-stream": true,
         "eth-block-tracker": true,
@@ -141,7 +140,6 @@
         "pump": true,
         "punycode": true,
         "qrcode-generator": true,
-        "querystring-es3": true,
         "ramda": true,
         "react": true,
         "react-dnd": true,
@@ -1205,6 +1203,16 @@
         "process": true
       }
     },
+    "deep-equal": {
+      "packages": {
+        "is-arguments": true,
+        "is-date-object": true,
+        "is-regex": true,
+        "object-is": true,
+        "object-keys": true,
+        "regexp.prototype.flags": true
+      }
+    },
     "deep-extend": {
       "packages": {
         "buffer": true
@@ -1219,6 +1227,11 @@
       "packages": {
         "abstract-leveldown": true,
         "inherits": true
+      }
+    },
+    "define-properties": {
+      "packages": {
+        "object-keys": true
       }
     },
     "des.js": {
@@ -1370,6 +1383,16 @@
     "errno": {
       "packages": {
         "prr": true
+      }
+    },
+    "es-abstract": {
+      "globals": {
+        "Atomics": true,
+        "SharedArrayBuffer": true
+      },
+      "packages": {
+        "function-bind": true,
+        "has-symbols": true
       }
     },
     "eth-block-tracker": {
@@ -1709,13 +1732,11 @@
       "globals": {
         "addEventListener": true,
         "clearTimeout": true,
-        "document.documentElement.attachEvent": true,
-        "document.documentElement.detachEvent": true,
         "removeEventListener": true,
         "setTimeout": true
       },
       "packages": {
-        "deep-equal": true
+        "fast-deep-equal": true
       }
     },
     "fast-levenshtein": {
@@ -1819,6 +1840,11 @@
       "packages": {
         "is-buffer": true,
         "sparse-array": true
+      }
+    },
+    "has": {
+      "packages": {
+        "function-bind": true
       }
     },
     "has-binary2": {
@@ -2336,6 +2362,11 @@
         "multiaddr": true,
         "multibase": true,
         "multihashes": true
+      }
+    },
+    "is-regex": {
+      "packages": {
+        "has": true
       }
     },
     "iso-random-stream": {
@@ -3131,6 +3162,9 @@
         "once": true,
         "readable-stream": true
       }
+    },
+    "object-keys": {
+      "environment": "unfrozen"
     },
     "obs-store": {
       "packages": {
@@ -3937,6 +3971,12 @@
     "regenerator-runtime": {
       "globals": {
         "regeneratorRuntime": "write"
+      }
+    },
+    "regexp.prototype.flags": {
+      "packages": {
+        "define-properties": true,
+        "es-abstract": true
       }
     },
     "remote-redux-devtools": {
