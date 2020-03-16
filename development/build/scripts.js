@@ -100,7 +100,6 @@ function createScriptTasks ({ browserPlatforms, livereload }) {
       // load lavamoat config
       await fs.mkdir('./lavamoat', { recursive: true })
       const config = lavamoat.loadConfig({ writeAutoConfig })
-      console.log('config', config)
 
       // add factor-bundle specific options
       Object.assign(bundlerOpts, {
@@ -257,7 +256,7 @@ function setupBundlerDefaults ({ bundlerOpts, events, devMode, test, watchify })
   })
   // setup minification
   if (!devMode) {
-    setupMinification({ bundlerOpts, events })
+    // setupMinification({ bundlerOpts, events })
   }
   // inject environment variables
   setupEnvVarInjection({ bundlerOpts, events, devMode, test })
