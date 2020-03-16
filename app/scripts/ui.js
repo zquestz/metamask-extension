@@ -1,7 +1,3 @@
-
-// this must run before anything else
-import './lib/freezeGlobals'
-
 // polyfills
 import 'abortcontroller-polyfill/dist/polyfill-patch-fetch'
 
