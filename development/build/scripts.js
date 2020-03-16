@@ -34,9 +34,11 @@ function createScriptTasks ({ browserPlatforms, livereload }) {
   function createBundleTasks (label, { devMode, test, livereload, writeAutoConfig } = {}) {
     const primaryBundlesTask = createTask(`scripts:${label}:factor`, createFactorBundles({ test, devMode, writeAutoConfig }))
     const contentscriptTask = createTask(`scripts:${label}:contentscript`, createBuildContentscriptTask({ test, devMode }))
+    const phishingDetectTask = createTask(`scripts:${label}:phishingDetect`, createBuildPhishingDetectTask({ test, devMode }))
     return createTask(`scripts:${label}`, composeParallel(...[
       runInChildProcess(primaryBundlesTask),
       runInChildProcess(contentscriptTask),
+      runInChildProcess(phishingDetectTask),
       devMode && initiateLiveReload({ livereload }),
     ].filter(Boolean)))
   }
@@ -57,13 +59,22 @@ function createScriptTasks ({ browserPlatforms, livereload }) {
     }
   }
 
+  function createBuildPhishingDetectTask ({ devMode, testing } = {}) {
+    return createNormalBundle({
+      destName: `phishing-detect.js`,
+      srcPath: `./app/scripts/phishing-detect.js`,
+      devMode,
+      testing,
+      watchify: devMode,
+    })
+  }
+
   function createBuildContentscriptTask ({ devMode, testing } = {}) {
     // inpage must be built first so it can be inserted into contentscript
     const inpage = 'inpage'
     const contentscript = 'contentscript'
     return composeSeries(
       createNormalBundle({
-        // label: inpage,
         destName: `${inpage}.js`,
         srcPath: `./app/scripts/${inpage}.js`,
         devMode,
@@ -71,7 +82,6 @@ function createScriptTasks ({ browserPlatforms, livereload }) {
         watchify: false,
       }),
       createNormalBundle({
-        // label: contentscript,
         destName: `${contentscript}.js`,
         srcPath: `./app/scripts/${contentscript}.js`,
         devMode,
@@ -233,61 +243,30 @@ function createBundlerSetup () {
 }
 
 function setupBundlerDefaults ({ bundlerOpts, events, devMode, test, watchify }) {
+  // enabling some general options
   Object.assign(bundlerOpts, {
     // source transforms
     transform: [
       // transpile top-level code
       'babelify',
-      // transpile specified dependencies using the object spread/rest operator
-      // because it is incompatible with `esprima`, which is used by `envify`
-      // See https://github.com/jquery/esprima/issues/1927
-      ['babelify', {
-        only: [
-          './**/node_modules/libp2p',
-        ],
-        global: true,
-        plugins: ['@babel/plugin-proposal-object-rest-spread'],
-      }],
       // inline `fs.readFileSync` files
       'brfs',
-      // inject environment variables
-      [envify({
-        METAMASK_DEBUG: devMode,
-        METAMASK_ENVIRONMENT: getEnvironment({ devMode }),
-        NODE_ENV: devMode ? 'development' : 'production',
-        IN_TEST: test ? 'true' : false,
-        PUBNUB_SUB_KEY: process.env.PUBNUB_SUB_KEY || '',
-        PUBNUB_PUB_KEY: process.env.PUBNUB_PUB_KEY || '',
-      }), {
-        global: true,
-      }],
     ],
     // use filepath for moduleIds, easier to determine origin file
     fullPaths: devMode,
   })
-
+  // setup minification
+  if (!devMode) {
+    setupMinification({ bundlerOpts, events })
+  }
+  // inject environment variables
+  setupEnvVarInjection({ bundlerOpts, events, devMode, test })
   // setup watchify
   if (watchify) {
     setupWatchify({ bundlerOpts, events })
   }
-
   // setup sourcemaps, write location depends on devMode
   setupSourcemaps({ bundlerOpts, events, devMode })
-
-  // instrument pipeline
-  events.on('pipeline', (pipeline) => {
-
-    // // setup minify
-    // if (!devMode) {
-    //   pipeline.get('minify').push(buffer())
-    //   pipeline.get('minify').push(terser({
-    //     mangle: {
-    //       reserved: [ 'MetamaskInpageProvider' ],
-    //     },
-    //   }))
-    // }
-
-  })
 }
 
 function executeBundle ({ bundlerOpts, events }) {
@@ -365,6 +344,49 @@ function setupSourcemaps ({ bundlerOpts, events, devMode }) {
       pipeline.get('sourcemaps:write').push(sourcemaps.write('../sourcemaps'))
     }
 
+  })
+}
+
+function setupEnvVarInjection ({ bundlerOpts, devMode, test }) {
+  Object.assign(bundlerOpts, {
+    transform: [
+      ...bundlerOpts.transform,
+      // transpile specified dependencies using the object spread/rest operator
+      // because it is incompatible with `esprima`, which is used by `envify`
+      // See https://github.com/jquery/esprima/issues/1927
+      ['babelify', {
+        only: [
+          './**/node_modules/libp2p',
+        ],
+        global: true,
+        plugins: ['@babel/plugin-proposal-object-rest-spread'],
+      }],
+      // inject environment variables
+      [envify({
+        METAMASK_DEBUG: devMode,
+        METAMASK_ENVIRONMENT: getEnvironment({ devMode }),
+        NODE_ENV: devMode ? 'development' : 'production',
+        IN_TEST: test ? 'true' : false,
+        PUBNUB_SUB_KEY: process.env.PUBNUB_SUB_KEY || '',
+        PUBNUB_PUB_KEY: process.env.PUBNUB_PUB_KEY || '',
+      }), {
+        global: true,
+      }],
+    ],
+  })
+}
+
+function setupMinification ({ events }) {
+  // instrument pipeline
+  events.on('pipeline', (pipeline) => {
+    // must ensure vinyl file objects are buffered first
+    pipeline.get('minify').push(buffer())
+    // apply terser
+    pipeline.get('minify').push(terser({
+      mangle: {
+        reserved: [ 'MetamaskInpageProvider' ],
+      },
+    }))
   })
 }
 
