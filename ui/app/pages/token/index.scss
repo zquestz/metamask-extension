@@ -37,7 +37,8 @@
         }
       }
 
-      &__item {
+      &__item,
+      &__selected-item {
         transition: 200ms ease-in-out;
         display: flex;
         flex-flow: row nowrap;
@@ -67,6 +68,12 @@
         &--disabled {
           opacity: .4;
           pointer-events: none;
+        }
+      }
+
+      &__selected-item {
+        &:last-of-type {
+          border-bottom: none;
         }
       }
 

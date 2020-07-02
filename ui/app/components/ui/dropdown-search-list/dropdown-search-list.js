@@ -13,12 +13,22 @@ export default function DropdownSearchList ({
   SelectedItemComponent = null,
   onSelect = null,
   startingItem = null,
+  onOpen = null,
+  onClose = null,
 }) {
   const [isOpen, setIsOpen] = useState(false)
   const [selectedItem, setSelectedItem] = useState(startingItem)
 
   return (
-    <div className="dropdown-search-list simple-dropdown" onClick={() => !isOpen && setIsOpen(true)}>
+    <div
+      className="dropdown-search-list simple-dropdown"
+      onClick={() => {
+        if (!isOpen) {
+          setIsOpen(true)
+          onOpen()
+        }
+      }}
+    >
       {!isOpen && (
         <div className="dropdown-search-list__selector">
           <SelectedItemComponent {...selectedItem} />
@@ -38,6 +48,7 @@ export default function DropdownSearchList ({
               onSelect && onSelect(item)
               setSelectedItem(item)
               setIsOpen(false)
+              onClose()
             }}
             maxListItems={maxListItems}
           />
@@ -46,6 +57,7 @@ export default function DropdownSearchList ({
             onClick={(event) => {
               event.stopPropagation()
               setIsOpen(false)
+              onClose()
             }}
           />
         </>
@@ -68,4 +80,6 @@ DropdownSearchList.propTypes = {
   maxListItems: PropTypes.number,
   SelectedItemComponent: PropTypes.element,
   startingItem: PropTypes.object,
+  onOpen: PropTypes.func,
+  onClose: PropTypes.func,
 }
