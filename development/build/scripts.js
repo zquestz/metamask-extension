@@ -116,6 +116,7 @@ function createScriptTasks ({ browserPlatforms, livereload }) {
           ['lavamoat-browserify', {
             // config: './dist/lavamoat/lavamoat-config.json',
             writeAutoConfig,
+            writeAutoConfigDebug: './dist/lavamoat/lavamoat-config-debug.json',
             // temp: for stack traces
             debugMode: true,
           }],
@@ -201,6 +202,7 @@ function createScriptTasks ({ browserPlatforms, livereload }) {
           ['lavamoat-browserify', {
             config: './dist/lavamoat/lavamoat-config.json',
             writeAutoConfig: true,
+            writeAutoConfigDebug: './dist/lavamoat/lavamoat-config-debug.json',
           }],
           // factor code into multiple bundles and emit as vinyl file objects
           ['bify-package-factor', {

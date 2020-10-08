@@ -17364,28 +17364,45 @@ latest-version@^5.0.0:
   dependencies:
     package-json "^6.3.0"
 
-lavamoat-browserify@^8.1.3:
-  version "8.1.3"
-  resolved "https://registry.yarnpkg.com/lavamoat-browserify/-/lavamoat-browserify-8.1.3.tgz#a3daea22d7074b051312d21b70490af0d2fb6b4f"
-  integrity sha512-xyTS4rKEHaIgSnKnG6G5ahQp7HcxfVFXLGa0ROKymRBpeLtXIbmtM4tUTCnxPDaMiFCcCC99nr3ots3oUCItmA==
+lavamoat-browserify@^8.2.4:
+  version "8.2.4"
+  resolved "https://registry.yarnpkg.com/lavamoat-browserify/-/lavamoat-browserify-8.2.4.tgz#67b6d24cc1aa59a81e35bb558aa6c3bfaddf48a7"
+  integrity sha512-RGYno6ZNxoHBJCaxqHyk2o0D+DFkY6bujxqgGGE1V16FnJ7z511Vzi1M1+TlZAHZ66pi8ODzTP01iD67ycn1yg==
   dependencies:
     JSONStream "^1.3.5"
     acorn-globals "^4.3.3"
     acorn-walk "^6.1.1"
     browserify-transform-tools "^1.7.0"
+    clone "^2.1.2"
     combine-source-map "^0.8.0"
     cytoplasm "^3.0.3"
     fromentries "^1.1.0"
     json-stable-stringify "^1.0.1"
+    lavamoat-core "^1.0.0"
+    lavamoat-tofu "^2.0.4"
     merge-deep "^3.0.2"
+    mkdirp "^1.0.3"
     module-name-from-path "git+https://git@github.com/kumavis/module-name-from-path.git"
     offset-sourcemap-lines "^1.0.1"
     pify "^4.0.1"
     resolve-package-path "^1.2.7"
     safe-buffer "^5.1.2"
-    sesify-tofu "^2.0.4"
     through2 "^3.0.0"
     umd "^3.0.3"
+
+lavamoat-core@^1.0.0:
+  version "1.0.2"
+  resolved "https://registry.yarnpkg.com/lavamoat-core/-/lavamoat-core-1.0.2.tgz#73f992e3f3612f54143a65023620daed62af6884"
+  integrity sha512-yLaz95sn5el0KFu+IW+1YZImdW3rrOZ7guR5t7pS/H4NQt6s20Q3fTo/xDkklGJ2LJFE16HxxkugX8/p26QFwQ==
+  dependencies:
+    cytoplasm "^3.0.3"
+
+lavamoat-tofu@^2.0.4:
+  version "2.0.7"
+  resolved "https://registry.yarnpkg.com/lavamoat-tofu/-/lavamoat-tofu-2.0.7.tgz#3a2376bdf63dfc5499709dac2813a9e1d6ec67bf"
+  integrity sha512-dJGqXGyaoY9A+AUfMRlDvb6apLUj7edIFqxjgqWdQ5BdXjV6gxp8L82pQ/tyYgpofdg/bBQ7waATSTCO42DugA==
+  dependencies:
+    acorn-globals "^4.3.3"
 
 lazy-cache@^0.2.3:
   version "0.2.7"
@@ -19442,6 +19459,11 @@ mkdirp@*, mkdirp@0.5.1, "mkdirp@>=0.5 0", mkdirp@^0.5.0, mkdirp@^0.5.1, mkdirp@~
   integrity sha1-MAV0OOrGz3+MR2fzhkjWaX11yQM=
   dependencies:
     minimist "0.0.8"
+
+mkdirp@^1.0.3:
+  version "1.0.3"
+  resolved "https://registry.yarnpkg.com/mkdirp/-/mkdirp-1.0.3.tgz#4cf2e30ad45959dddea53ad97d518b6c8205e1ea"
+  integrity sha512-6uCP4Qc0sWsgMLy1EOqqS/3rjDHOEnsStVr/4vtAIK2Y5i2kA7lFFejYrpIyiN9w0pYf4ckeCYT9f1r1P9KX5g==
 
 mocha@^7.0.1:
   version "7.0.1"
@@ -25318,13 +25340,6 @@ servify@^0.1.12:
     express "^4.14.0"
     request "^2.79.0"
     xhr "^2.3.3"
-
-sesify-tofu@^2.0.4:
-  version "2.0.4"
-  resolved "https://registry.yarnpkg.com/sesify-tofu/-/sesify-tofu-2.0.4.tgz#b31d4c8d67ea2d61e9c5be4948f085a849f3e632"
-  integrity sha512-8mWENwqoWauYrtUVww4/QE5mFjj+2JjvVdMWqjcfOZkt3SjOACy+S0ZnxOn06NYpW6epRaPYIqoIF8SdhvXjdA==
-  dependencies:
-    acorn-globals "^4.3.3"
 
 sesify-viz@^3.0.10:
   version "3.0.10"
