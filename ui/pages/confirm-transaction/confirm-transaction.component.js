@@ -47,6 +47,7 @@ export default class ConfirmTransaction extends Component {
     getTokenParams: PropTypes.func,
     isTokenMethodAction: PropTypes.bool,
     setDefaultHomeActiveTabName: PropTypes.func,
+    failedTransactionsToDisplayCount: PropTypes.number,
   };
 
   componentDidMount() {
@@ -62,9 +63,10 @@ export default class ConfirmTransaction extends Component {
       paramsTransactionId,
       getTokenParams,
       isTokenMethodAction,
+      failedTransactionsToDisplayCount,
     } = this.props;
 
-    if (!totalUnapprovedCount && !sendTo) {
+    if (!totalUnapprovedCount && !sendTo && !failedTransactionsToDisplayCount) {
       history.replace(mostRecentOverviewPage);
       return;
     }

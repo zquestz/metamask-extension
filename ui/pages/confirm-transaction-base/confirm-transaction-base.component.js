@@ -103,6 +103,9 @@ export default class ConfirmTransactionBase extends Component {
     isEthGasPrice: PropTypes.bool,
     noGasPrice: PropTypes.bool,
     setDefaultHomeActiveTabName: PropTypes.func,
+    isFailedTransaction: PropTypes.bool,
+    removeTxFromFailedTxesToDisplay: PropTypes.bool,
+    addTxToFailedTxesToDisplay: PropTypes.bool,
   };
 
   state = {
@@ -278,6 +281,7 @@ export default class ConfirmTransactionBase extends Component {
       isMainnet,
       isEthGasPrice,
       noGasPrice,
+      isFailedTransaction,
     } = this.props;
     const { t } = this.context;
 
@@ -299,6 +303,7 @@ export default class ConfirmTransactionBase extends Component {
         insufficientBalance={insufficientBalance}
         customPriceIsSafe
         isSpeedUp={false}
+        disabled={isFailedTransaction}
       />
     );
 
@@ -308,14 +313,18 @@ export default class ConfirmTransactionBase extends Component {
           <ConfirmDetailRow
             label={t('gasFee')}
             value={hexTransactionFee}
-            headerText={notMainnetOrTest || gasPriceFetchFailure ? '' : 'Edit'}
+            headerText={
+              notMainnetOrTest || gasPriceFetchFailure || isFailedTransaction
+                ? ''
+                : 'Edit'
+            }
             headerTextClassName={
-              notMainnetOrTest || gasPriceFetchFailure
+              notMainnetOrTest || gasPriceFetchFailure || isFailedTransaction
                 ? ''
                 : 'confirm-detail-row__header-text--edit'
             }
             onHeaderClick={
-              notMainnetOrTest || gasPriceFetchFailure
+              notMainnetOrTest || gasPriceFetchFailure || isFailedTransaction
                 ? null
                 : () => this.handleEditGas()
             }
@@ -494,6 +503,18 @@ export default class ConfirmTransactionBase extends Component {
     });
   }
 
+  handleFailedTxClose() {
+    const {
+      mostRecentOverviewPage,
+      txData,
+      removeTxFromFailedTxesToDisplay,
+      history,
+    } = this.props;
+
+    removeTxFromFailedTxesToDisplay(txData.id);
+    history.push(mostRecentOverviewPage);
+  }
+
   handleSubmit() {
     const {
       sendTransaction,
@@ -502,6 +523,7 @@ export default class ConfirmTransactionBase extends Component {
       history,
       mostRecentOverviewPage,
       updateCustomNonce,
+      addTxToFailedTxesToDisplay,
     } = this.props;
     const { submitting } = this.state;
 
@@ -531,6 +553,7 @@ export default class ConfirmTransactionBase extends Component {
             );
           })
           .catch((error) => {
+            addTxToFailedTxesToDisplay(txData.id);
             this.setState({
               submitting: false,
               submitError: error.message,
@@ -670,6 +693,7 @@ export default class ConfirmTransactionBase extends Component {
       hideSenderToRecipient,
       showAccountInHeader,
       txData,
+      isFailedTransaction,
     } = this.props;
     const {
       submitting,
@@ -709,7 +733,7 @@ export default class ConfirmTransactionBase extends Component {
         toAddress={toAddress}
         toEns={toEns}
         toNickname={toNickname}
-        showEdit={onEdit && !isTxReprice}
+        showEdit={onEdit && !isTxReprice && !isFailedTransaction}
         action={functionType}
         title={title}
         titleComponent={this.renderTitleComponent()}
@@ -739,10 +763,13 @@ export default class ConfirmTransactionBase extends Component {
         onEdit={() => this.handleEdit()}
         onCancelAll={() => this.handleCancelAll()}
         onCancel={() => this.handleCancel()}
-        onSubmit={() => this.handleSubmit()}
+        onSubmit={() =>
+          isFailedTransaction ? this.handleFailedTxClose() : this.handleSubmit()
+        }
         hideSenderToRecipient={hideSenderToRecipient}
         origin={txData.origin}
         ethGasPriceWarning={ethGasPriceWarning}
+        isFailedTransaction={isFailedTransaction}
       />
     );
   }

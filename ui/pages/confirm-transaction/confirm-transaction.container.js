@@ -13,7 +13,11 @@ import {
   getTokenParams,
   setDefaultHomeActiveTabName,
 } from '../../store/actions';
-import { unconfirmedTransactionsListSelector } from '../../selectors';
+import {
+  unconfirmedTransactionsListSelector,
+  getFailedTransactionsToDisplayCount,
+  getFailedTransactionsToDisplay,
+} from '../../selectors';
 import { getMostRecentOverviewPage } from '../../ducks/history/history';
 import { getSendTo } from '../../ducks/send';
 import ConfirmTransaction from './confirm-transaction.component';
@@ -29,10 +33,14 @@ const mapStateToProps = (state, ownProps) => {
   const sendTo = getSendTo(state);
 
   const unconfirmedTransactions = unconfirmedTransactionsListSelector(state);
+  const failedTransactionsToDisplay = getFailedTransactionsToDisplay(state);
   const totalUnconfirmed = unconfirmedTransactions.length;
-  const transaction = totalUnconfirmed
-    ? unapprovedTxs[id] || unconfirmedTransactions[0]
-    : {};
+  const transaction =
+    totalUnconfirmed || failedTransactionsToDisplay[id]
+      ? unapprovedTxs[id] ||
+        failedTransactionsToDisplay[id] ||
+        unconfirmedTransactions[0]
+      : {};
   const { id: transactionId, type } = transaction;
 
   return {
@@ -45,6 +53,9 @@ const mapStateToProps = (state, ownProps) => {
     transactionId: transactionId && String(transactionId),
     transaction,
     isTokenMethodAction: isTokenMethodAction(type),
+    failedTransactionsToDisplayCount: getFailedTransactionsToDisplayCount(
+      state,
+    ),
   };
 };
 

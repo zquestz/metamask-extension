@@ -35,8 +35,13 @@ import {
   getNoGasPriceFetched,
   getIsEthGasPriceFetched,
   getShouldShowFiat,
+  getFailedTransactionsToDisplay,
 } from '../../selectors';
 import { getMostRecentOverviewPage } from '../../ducks/history/history';
+import {
+  addTxToFailedTxesToDisplay,
+  removeTxFromFailedTxesToDisplay,
+} from '../../ducks/app/app';
 import { transactionMatchesNetwork } from '../../../shared/modules/transaction.utils';
 import { toChecksumHexAddress } from '../../../shared/modules/hexstring-utils';
 import ConfirmTransactionBase from './confirm-transaction-base.component';
@@ -77,10 +82,13 @@ const mapStateToProps = (state, ownProps) => {
     nextNonce,
     provider: { chainId },
   } = metamask;
+
+  const failedTransactionsToDisplay = getFailedTransactionsToDisplay(state);
+
   const { tokenData, txData, tokenProps, nonce } = confirmTransaction;
   const { txParams = {}, lastGasPrice, id: transactionId, type } = txData;
   const transaction =
-    Object.values(unapprovedTxs).find(
+    Object.values({ ...unapprovedTxs, ...failedTransactionsToDisplay }).find(
       ({ id }) => id === (transactionId || Number(paramsTransactionId)),
     ) || {};
   const {
@@ -150,6 +158,10 @@ const mapStateToProps = (state, ownProps) => {
   const isEthGasPrice = getIsEthGasPriceFetched(state);
   const noGasPrice = getNoGasPriceFetched(state);
 
+  const isFailedTransaction = Boolean(
+    failedTransactionsToDisplay[fullTxData.id],
+  );
+
   return {
     balance,
     fromAddress,
@@ -189,6 +201,7 @@ const mapStateToProps = (state, ownProps) => {
     isMainnet,
     isEthGasPrice,
     noGasPrice,
+    isFailedTransaction,
   };
 };
 
@@ -233,6 +246,10 @@ export const mapDispatchToProps = (dispatch) => {
     getNextNonce: () => dispatch(getNextNonce()),
     setDefaultHomeActiveTabName: (tabName) =>
       dispatch(setDefaultHomeActiveTabName(tabName)),
+    addTxToFailedTxesToDisplay: (id) =>
+      dispatch(addTxToFailedTxesToDisplay(id)),
+    removeTxFromFailedTxesToDisplay: (id) =>
+      dispatch(removeTxFromFailedTxesToDisplay(id)),
   };
 };
 

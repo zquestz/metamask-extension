@@ -21,6 +21,7 @@ export default class AdvancedGasInputs extends Component {
     customGasLimitMessage: PropTypes.string,
     minimumGasLimit: PropTypes.number,
     customPriceIsExcessive: PropTypes.bool,
+    disabled: PropTypes.bool,
   };
 
   static defaultProps = {
@@ -132,6 +133,7 @@ export default class AdvancedGasInputs extends Component {
     label,
     customMessageComponent,
     tooltipTitle,
+    disabled,
   }) {
     return (
       <div className="advanced-gas-inputs__gas-edit-row">
@@ -153,6 +155,7 @@ export default class AdvancedGasInputs extends Component {
             min="0"
             value={value}
             onChange={onChange}
+            disabled={disabled}
           />
           <div
             className={classnames(
@@ -167,13 +170,16 @@ export default class AdvancedGasInputs extends Component {
           >
             <div
               className="advanced-gas-inputs__gas-edit-row__input-arrows__i-wrap"
-              onClick={() => onChange({ target: { value: value + 1 } })}
+              onClick={() =>
+                !disabled && onChange({ target: { value: value + 1 } })
+              }
             >
               <i className="fa fa-sm fa-angle-up" />
             </div>
             <div
               className="advanced-gas-inputs__gas-edit-row__input-arrows__i-wrap"
               onClick={() =>
+                !disabled &&
                 onChange({ target: { value: Math.max(value - 1, 0) } })
               }
             >
@@ -194,6 +200,7 @@ export default class AdvancedGasInputs extends Component {
       customGasLimitMessage,
       minimumGasLimit,
       customPriceIsExcessive,
+      disabled,
     } = this.props;
     const { gasPrice, gasLimit } = this.state;
 
@@ -242,6 +249,7 @@ export default class AdvancedGasInputs extends Component {
           onChange: this.onChangeGasPrice,
           errorComponent: gasPriceErrorComponent,
           errorType: gasPriceErrorType,
+          disabled,
         })}
         {this.renderGasInput({
           label: this.context.t('gasLimit'),
@@ -251,6 +259,7 @@ export default class AdvancedGasInputs extends Component {
           errorComponent: gasLimitErrorComponent,
           customMessageComponent: gasLimitCustomMessageComponent,
           errorType: gasLimitErrorType,
+          disabled,
         })}
       </div>
     );
