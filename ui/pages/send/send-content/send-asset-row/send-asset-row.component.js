@@ -6,6 +6,7 @@ import TokenBalance from '../../../../components/ui/token-balance';
 import UserPreferencedCurrencyDisplay from '../../../../components/app/user-preferenced-currency-display';
 import { ERC20, PRIMARY } from '../../../../helpers/constants/common';
 import { ASSET_TYPES } from '../../../../ducks/send';
+import { isEqualCaseInsensitive } from '../../../../helpers/utils/util';
 
 export default class SendAssetRow extends Component {
   static propTypes = {
@@ -85,8 +86,8 @@ export default class SendAssetRow extends Component {
 
   renderSendToken() {
     const { sendAssetAddress } = this.props;
-    const token = this.props.tokens.find(
-      ({ address }) => address === sendAssetAddress,
+    const token = this.props.tokens.find(({ address }) =>
+      isEqualCaseInsensitive(address, sendAssetAddress),
     );
     return (
       <div

@@ -14,7 +14,11 @@ import {
   ALLOWED_SWAPS_CHAIN_IDS,
 } from '../../shared/constants/swaps';
 
-import { shortenAddress, getAccountByAddress } from '../helpers/utils/util';
+import {
+  shortenAddress,
+  getAccountByAddress,
+  isEqualCaseInsensitive,
+} from '../helpers/utils/util';
 import {
   getValueFromWeiHex,
   hexToDecimal,
@@ -262,8 +266,8 @@ export function getAddressBook(state) {
 
 export function getAddressBookEntry(state, address) {
   const addressBook = getAddressBook(state);
-  const entry = addressBook.find(
-    (contact) => contact.address === toChecksumHexAddress(address),
+  const entry = addressBook.find((contact) =>
+    isEqualCaseInsensitive(contact.address, toChecksumHexAddress(address)),
   );
   return entry;
 }
@@ -340,7 +344,7 @@ export function getTotalUnapprovedCount(state) {
     unapprovedTypedMessagesCount +
     getUnapprovedTxCount(state) +
     pendingApprovalCount +
-    getSuggestedTokenCount(state)
+    getSuggestedAssetCount(state)
   );
 }
 
@@ -361,9 +365,9 @@ export function getUnapprovedTemplatedConfirmations(state) {
   );
 }
 
-function getSuggestedTokenCount(state) {
-  const { suggestedTokens = {} } = state.metamask;
-  return Object.keys(suggestedTokens).length;
+function getSuggestedAssetCount(state) {
+  const { suggestedAssets = [] } = state.metamask;
+  return suggestedAssets.length;
 }
 
 export function getIsMainnet(state) {
