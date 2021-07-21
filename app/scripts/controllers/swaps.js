@@ -500,8 +500,7 @@ export default class SwapsController {
   }
 
   async _findTopQuoteAndCalculateSavings(quotes = {}) {
-    const tokenConversionRates = this.tokenRatesStore.getState()
-      .contractExchangeRates;
+    const tokenConversionRates = this.tokenRatesStore.contractExchangeRates;
     const {
       swapsState: { customGasPrice },
     } = this.store.getState();

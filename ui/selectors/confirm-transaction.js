@@ -12,6 +12,7 @@ import {
 import { sumHexes } from '../helpers/utils/transactions.util';
 import { transactionMatchesNetwork } from '../../shared/modules/transaction.utils';
 import { getNativeCurrency } from '../ducks/metamask/metamask';
+import { isEqualCaseInsensitive } from '../helpers/utils/util';
 import { getAveragePriceEstimateInHexWEI } from './custom-gas';
 import { getCurrentChainId, deprecatedGetCurrentNetworkId } from './selectors';
 
@@ -211,7 +212,12 @@ export const sendTokenTokenAmountAndToAddressSelector = createSelector(
 export const contractExchangeRateSelector = createSelector(
   contractExchangeRatesSelector,
   tokenAddressSelector,
-  (contractExchangeRates, tokenAddress) => contractExchangeRates[tokenAddress],
+  (contractExchangeRates, tokenAddress) =>
+    contractExchangeRates[
+      Object.keys(contractExchangeRates).find((address) =>
+        isEqualCaseInsensitive(address, tokenAddress),
+      )
+    ],
 );
 
 export const transactionFeeSelector = function (state, txData) {

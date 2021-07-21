@@ -7,6 +7,7 @@ import {
 } from '../selectors';
 import { getTokenFiatAmount } from '../helpers/utils/token-util';
 import { getConversionRate } from '../ducks/metamask/metamask';
+import { isEqualCaseInsensitive } from '../helpers/utils/util';
 
 /**
  * Get the token balance converted to fiat and formatted for display
@@ -34,7 +35,14 @@ export function useTokenFiatAmount(
   const userPrefersShownFiat = useSelector(getShouldShowFiat);
   const showFiat = overrides.showFiat ?? userPrefersShownFiat;
   const tokenExchangeRate =
-    overrides.exchangeRate ?? contractExchangeRates[tokenAddress];
+    overrides.exchangeRate ??
+    contractExchangeRates[
+      contractExchangeRates[
+        Object.keys(contractExchangeRates).find((address) =>
+          isEqualCaseInsensitive(address, tokenAddress),
+        )
+      ]
+    ];
   const formattedFiat = useMemo(
     () =>
       getTokenFiatAmount(

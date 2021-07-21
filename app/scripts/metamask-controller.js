@@ -27,7 +27,7 @@ import {
   GasFeeController,
   TokenListController,
   TokensController,
-  // TokenRatesController,
+  TokenRatesController,
 } from '@metamask/controllers';
 import { TRANSACTION_STATUSES } from '../../shared/constants/transaction';
 import { MAINNET_CHAIN_ID } from '../../shared/constants/network';
@@ -62,7 +62,6 @@ import TransactionController from './controllers/transactions';
 import DetectTokensController from './controllers/detect-tokens';
 import SwapsController from './controllers/swaps';
 import { PermissionsController } from './controllers/permissions';
-import TokenRatesController from './controllers/token-rates';
 import { NOTIFICATION_NAMES } from './controllers/permissions/enums';
 import getRestrictedMethods from './controllers/permissions/restrictedMethods';
 import nodeify from './lib/nodeify';
@@ -272,27 +271,19 @@ export default class MetamaskController extends EventEmitter {
       initState.NotificationController,
     );
 
-    this.tokenRatesController = new TokenRatesController({
-      tokensController: this.tokensController,
-      getNativeCurrency: () => {
-        const { ticker } = this.networkController.getProviderConfig();
-        return ticker ?? 'ETH';
-      },
-    });
-
     // token exchange rate tracker
-    // this.tokenRatesController = new TokenRatesController({
-    //   onTokensStateChange: (listener) =>
-    //     this.tokensController.subscribe(listener),
-    //   onCurrencyRateStateChange: (listener) =>
-    //     controllerMessenger.subscribe(
-    //       `${this.currencyRateController.name}:stateChange`,
-    //       listener,
-    //     ),
-    //   onNetworkStateChange: this.networkController.store.subscribe.bind(
-    //     this.networkController.store,
-    //   ),
-    // });
+    this.tokenRatesController = new TokenRatesController({
+      onTokensStateChange: (listener) =>
+        this.tokensController.subscribe(listener),
+      onCurrencyRateStateChange: (listener) =>
+        controllerMessenger.subscribe(
+          `${this.currencyRateController.name}:stateChange`,
+          listener,
+        ),
+      onNetworkStateChange: this.networkController.store.subscribe.bind(
+        this.networkController.store,
+      ),
+    });
 
     this.ensController = new EnsController({
       provider: this.provider,
@@ -332,13 +323,11 @@ export default class MetamaskController extends EventEmitter {
       if (activeControllerConnections > 0) {
         this.accountTracker.start();
         this.incomingTransactionsController.start();
-        this.tokenRatesController.start();
         this.currencyRateController.start();
         this.tokenListController.start();
       } else {
         this.accountTracker.stop();
         this.incomingTransactionsController.stop();
-        this.tokenRatesController.stop();
         this.currencyRateController.stop();
         this.tokenListController.stop();
       }
@@ -522,7 +511,7 @@ export default class MetamaskController extends EventEmitter {
       getProviderConfig: this.networkController.getProviderConfig.bind(
         this.networkController,
       ),
-      tokenRatesStore: this.tokenRatesController.store,
+      tokenRatesStore: this.tokenRatesController.state,
       getCurrentChainId: this.networkController.getCurrentChainId.bind(
         this.networkController,
       ),
@@ -575,7 +564,7 @@ export default class MetamaskController extends EventEmitter {
         AccountTracker: this.accountTracker.store,
         TxController: this.txController.memStore,
         CachedBalancesController: this.cachedBalancesController.store,
-        TokenRatesController: this.tokenRatesController.store,
+        TokenRatesController: this.tokenRatesController,
         MessageManager: this.messageManager.memStore,
         PersonalMessageManager: this.personalMessageManager.memStore,
         DecryptMessageManager: this.decryptMessageManager.memStore,
