@@ -1,6 +1,8 @@
 import React, { useContext } from 'react';
 import PropTypes from 'prop-types';
+import { useSelector } from 'react-redux';
 
+import { isEIP1559Network } from '../../../ducks/metamask/metamask';
 import { I18nContext } from '../../../contexts/i18n';
 import Typography from '../../ui/typography/typography';
 import {
@@ -35,6 +37,7 @@ export default function AdvancedGasControls({
   gasErrors,
 }) {
   const t = useContext(I18nContext);
+  const networkSupports1559 = useSelector(isEIP1559Network);
 
   const suggestedValues = {};
 
@@ -56,8 +59,7 @@ export default function AdvancedGasControls({
   }
 
   const showFeeMarketFields =
-    process.env.SHOW_EIP_1559_UI &&
-    gasEstimateType === GAS_ESTIMATE_TYPES.FEE_MARKET;
+    networkSupports1559 && gasEstimateType === GAS_ESTIMATE_TYPES.FEE_MARKET;
 
   return (
     <div className="advanced-gas-controls">

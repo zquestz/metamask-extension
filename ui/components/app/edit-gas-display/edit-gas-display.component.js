@@ -102,7 +102,7 @@ export default function EditGasDisplay({
         <TransactionTotalBanner
           total={estimatedMinimumFiat}
           detail={
-            process.env.SHOW_EIP_1559_UI &&
+            estimatedMaximumFiat !== undefined &&
             t('editGasTotalBannerSubtitle', [
               <Typography
                 fontWeight={FONT_WEIGHT.BOLD}

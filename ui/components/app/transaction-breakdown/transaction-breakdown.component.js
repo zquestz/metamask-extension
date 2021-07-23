@@ -26,6 +26,7 @@ export default class TransactionBreakdown extends PureComponent {
     baseFee: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
     priorityFee: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
     effectiveGasPrice: PropTypes.number,
+    isEIP1559Transaction: PropTypes.bool,
   };
 
   static defaultProps = {
@@ -48,6 +49,7 @@ export default class TransactionBreakdown extends PureComponent {
       baseFee,
       priorityFee,
       effectiveGasPrice,
+      isEIP1559Transaction,
     } = this.props;
     return (
       <div className={classnames('transaction-breakdown', className)}>
@@ -91,7 +93,7 @@ export default class TransactionBreakdown extends PureComponent {
             />
           </TransactionBreakdownRow>
         )}
-        {process.env.SHOW_EIP_1559_UI && (
+        {isEIP1559Transaction && (
           <TransactionBreakdownRow title={t('transactionHistoryBaseFee')}>
             {typeof baseFee === 'undefined' ? (
               '?'
@@ -107,7 +109,7 @@ export default class TransactionBreakdown extends PureComponent {
             )}
           </TransactionBreakdownRow>
         )}
-        {process.env.SHOW_EIP_1559_UI && (
+        {isEIP1559Transaction && (
           <TransactionBreakdownRow title={t('transactionHistoryPriorityFee')}>
             {typeof priorityFee === 'undefined' ? (
               '?'
@@ -123,7 +125,7 @@ export default class TransactionBreakdown extends PureComponent {
             )}
           </TransactionBreakdownRow>
         )}
-        {!process.env.SHOW_EIP_1559_UI && (
+        {!isEIP1559Transaction && (
           <TransactionBreakdownRow title={t('advancedGasPriceTitle')}>
             {typeof gasPrice === 'undefined' ? (
               '?'
