@@ -1066,6 +1066,9 @@
   "importTokenWarning": {
     "message": "Anyone can create a token with any name, including fake versions of existing tokens. Add and trade at your own risk!"
   },
+  "importTokens": {
+    "message": "Import tokens"
+  },
   "importWallet": {
     "message": "Import wallet"
   },
@@ -1299,6 +1302,9 @@
   },
   "mobileSyncWarning": {
     "message": "⚠️ Proceeding will display a secret QR code that allows access to your accounts. Do not share it with anyone. Support staff will never ask you for it."
+  },
+  "missingToken": {
+    "message": "Dont't see your token?"
   },
   "mustSelectOne": {
     "message": "Must select at least 1 token."
