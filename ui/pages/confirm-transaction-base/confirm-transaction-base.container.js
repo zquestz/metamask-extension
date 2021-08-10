@@ -39,6 +39,7 @@ import { toChecksumHexAddress } from '../../../shared/modules/hexstring-utils';
 import {
   updateTransactionGasFees,
   getIsGasEstimatesLoading,
+  getNativeCurrency,
 } from '../../ducks/metamask/metamask';
 import { getGasLoadingAnimationIsShowing } from '../../ducks/app/app';
 import ConfirmTransactionBase from './confirm-transaction-base.component';
@@ -161,6 +162,7 @@ const mapStateToProps = (state, ownProps) => {
   const gasFeeIsCustom =
     fullTxData.userFeeLevel === 'custom' ||
     txParamsAreDappSuggested(fullTxData);
+  const nativeCurrency = getNativeCurrency(state);
 
   return {
     balance,
@@ -208,6 +210,7 @@ const mapStateToProps = (state, ownProps) => {
     maxPriorityFeePerGas: gasEstimationObject.maxPriorityFeePerGas,
     baseFeePerGas: gasEstimationObject.baseFeePerGas,
     gasFeeIsCustom,
+    nativeCurrency,
   };
 };
 
