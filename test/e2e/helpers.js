@@ -123,7 +123,7 @@ async function withFixtures(options, testSuite) {
         await secondaryGanacheServer.quit();
       }
       if (webDriver) {
-        await webDriver.quit();
+        // await webDriver.quit();
       }
       if (dappServer) {
         await new Promise((resolve, reject) => {
