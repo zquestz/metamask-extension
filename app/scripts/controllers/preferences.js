@@ -4,7 +4,6 @@ import { ethErrors } from 'eth-rpc-errors';
 import { normalize as normalizeAddress } from 'eth-sig-util';
 import { ethers } from 'ethers';
 import log from 'loglevel';
-import { Promise } from 'globalthis/implementation';
 import { NETWORK_TYPE_TO_ID_MAP } from '../../../shared/constants/network';
 import { isPrefixedFormattedHexString } from '../../../shared/modules/network.utils';
 import { NETWORK_EVENTS } from './network';
@@ -146,24 +145,6 @@ export default class PreferencesController {
     const { knownMethodData } = this.store.getState();
     knownMethodData[fourBytePrefix] = methodData;
     this.store.updateState({ knownMethodData });
-  }
-
-  /**
-   * wallet_watchAsset request handler.
-   *
-   * @param {Object} req - The watchAsset JSON-RPC request object.
-   */
-  async requestWatchAsset(req) {
-    const { type, options } = req.params;
-
-    switch (type) {
-      case 'ERC20':
-        return await this._handleWatchAssetERC20(options);
-      default:
-        throw ethErrors.rpc.invalidParams(
-          `Asset of type "${type}" not supported.`,
-        );
-    }
   }
 
   /**
