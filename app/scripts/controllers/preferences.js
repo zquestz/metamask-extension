@@ -1,6 +1,5 @@
 import { strict as assert } from 'assert';
 import { ObservableStore } from '@metamask/obs-store';
-import { ethErrors } from 'eth-rpc-errors';
 import { normalize as normalizeAddress } from 'eth-sig-util';
 import { ethers } from 'ethers';
 import log from 'loglevel';

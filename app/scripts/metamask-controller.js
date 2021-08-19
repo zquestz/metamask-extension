@@ -1318,30 +1318,6 @@ export default class MetamaskController extends EventEmitter {
       selectedAddress,
     } = this.preferencesController.store.getState();
 
-    const { tokens, allTokens } = this.tokensController.state;
-
-    const accountTokens = allTokens[selectedAddress];
-
-    // Filter ERC20 tokens
-    const filteredAccountTokens = {};
-    Object.keys(accountTokens).forEach((address) => {
-      const checksummedAddress = toChecksumHexAddress(address);
-      filteredAccountTokens[checksummedAddress] = {};
-      Object.keys(accountTokens[address]).forEach((chainId) => {
-        filteredAccountTokens[checksummedAddress][chainId] =
-          chainId === MAINNET_CHAIN_ID
-            ? accountTokens[address][chainId].filter(
-                ({ address: tokenAddress }) => {
-                  const checksumAddress = toChecksumHexAddress(tokenAddress);
-                  return contractMap[checksumAddress]
-                    ? contractMap[checksumAddress].erc20
-                    : true;
-                },
-              )
-            : accountTokens[address][chainId];
-      });
-    });
-
     const preferences = {
       currentLocale,
       frequentRpcList,
@@ -1349,10 +1325,33 @@ export default class MetamaskController extends EventEmitter {
       selectedAddress,
     };
 
-    const tokensController = {
-      allTokens: filteredAccountTokens,
-      tokens,
-    };
+    // Tokens
+    const { allTokens } = this.tokensController.state;
+
+    // Filter ERC20 tokens
+    const allERC20Tokens = {};
+
+    Object.keys(allTokens).forEach((accountAddress) => {
+      const checksummedAccountAddress = toChecksumHexAddress(accountAddress);
+      allERC20Tokens[checksummedAccountAddress] = {};
+      Object.keys(allTokens[accountAddress]).forEach((chainId) => {
+        allERC20Tokens[checksummedAccountAddress][chainId] = allTokens[
+          accountAddress
+        ][chainId].filter((asset) => {
+          if (asset.isERC721 === undefined) {
+            const checksumAddress = toChecksumHexAddress(asset.address);
+            if (contractMap[checksumAddress] !== undefined) {
+              if (contractMap[checksumAddress].erc20) {
+                return true;
+              }
+            }
+          } else if (asset.isERC721 === false) {
+            return true;
+          }
+          return false;
+        });
+      });
+    });
 
     // Accounts
     const hdKeyring = this.keyringController.getKeyringsByType(
@@ -1393,7 +1392,7 @@ export default class MetamaskController extends EventEmitter {
       accounts,
       preferences,
       transactions,
-      tokensController,
+      tokens: allERC20Tokens,
       network: this.networkController.store.getState(),
     };
   }

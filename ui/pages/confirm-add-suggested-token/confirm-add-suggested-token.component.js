@@ -60,7 +60,7 @@ export default class ConfirmAddSuggestedToken extends Component {
       mostRecentOverviewPage,
       acceptWatchAsset,
     } = this.props;
-    const [{ asset, id }] = suggestedAssets;
+
     const hasTokenDuplicates = this.checkTokenDuplicates(
       suggestedAssets,
       tokens,
@@ -96,25 +96,29 @@ export default class ConfirmAddSuggestedToken extends Component {
               </div>
             </div>
             <div className="confirm-add-token__token-list">
-              <div
-                className="confirm-add-token__token-list-item"
-                key={asset.address}
-              >
-                <div className="confirm-add-token__token confirm-add-token__data">
-                  <Identicon
-                    className="confirm-add-token__token-icon"
-                    diameter={48}
-                    address={asset.address}
-                    image={asset.image}
-                  />
-                  <div className="confirm-add-token__name">
-                    {this.getTokenName(asset.name, asset.symbol)}
+              {suggestedAssets.map(({ asset }) => {
+                return (
+                  <div
+                    className="confirm-add-token__token-list-item"
+                    key={asset.address}
+                  >
+                    <div className="confirm-add-token__token confirm-add-token__data">
+                      <Identicon
+                        className="confirm-add-token__token-icon"
+                        diameter={48}
+                        address={asset.address}
+                        image={asset.image}
+                      />
+                      <div className="confirm-add-token__name">
+                        {this.getTokenName(asset.name, asset.symbol)}
+                      </div>
+                    </div>
+                    <div className="confirm-add-token__balance">
+                      <TokenBalance token={asset} />
+                    </div>
                   </div>
-                </div>
-                <div className="confirm-add-token__balance">
-                  <TokenBalance token={asset} />
-                </div>
-              </div>
+                );
+              })}
             </div>
           </div>
         </div>
@@ -124,10 +128,11 @@ export default class ConfirmAddSuggestedToken extends Component {
               type="default"
               large
               className="page-container__footer-button"
-              onClick={() => {
-                rejectWatchAsset(id).then(() =>
-                  history.push(mostRecentOverviewPage),
-                );
+              onClick={async () => {
+                await suggestedAssets.forEach(async ({ id }) => {
+                  await rejectWatchAsset(id);
+                });
+                history.push(mostRecentOverviewPage);
               }}
             >
               {this.context.t('cancel')}
@@ -137,22 +142,22 @@ export default class ConfirmAddSuggestedToken extends Component {
               large
               className="page-container__footer-button"
               disabled={suggestedAssets.length === 0}
-              onClick={() => {
-                acceptWatchAsset(id)
-                  .then(() => {
-                    this.context.trackEvent({
-                      event: 'Token Added',
-                      category: 'Wallet',
-                      sensitiveProperties: {
-                        token_symbol: asset.symbol,
-                        token_contract_address: asset.address,
-                        token_decimal_precision: asset.decimals,
-                        unlisted: asset.unlisted,
-                        source: 'dapp',
-                      },
-                    });
-                  })
-                  .then(() => history.push(mostRecentOverviewPage));
+              onClick={async () => {
+                await suggestedAssets.forEach(async ({ asset, id }) => {
+                  await acceptWatchAsset(id);
+                  this.context.trackEvent({
+                    event: 'Token Added',
+                    category: 'Wallet',
+                    sensitiveProperties: {
+                      token_symbol: asset.symbol,
+                      token_contract_address: asset.address,
+                      token_decimal_precision: asset.decimals,
+                      unlisted: asset.unlisted,
+                      source: 'dapp',
+                    },
+                  });
+                });
+                history.push(mostRecentOverviewPage);
               }}
             >
               {this.context.t('addToken')}
