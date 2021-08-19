@@ -63,6 +63,7 @@ describe('Permissions', function () {
           tag: 'h2',
         });
 
+        await driver.delay(xxLargeDelayMs);
         const domains = await driver.findClickableElements(
           '.connected-sites-list__domain-name',
         );
