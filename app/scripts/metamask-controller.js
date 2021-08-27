@@ -1326,18 +1326,18 @@ export default class MetamaskController extends EventEmitter {
     };
 
     // Tokens
-    const { allTokens } = this.tokensController.state;
+    const { allTokens, allIgnoredTokens } = this.tokensController.state;
 
     // Filter ERC20 tokens
     const allERC20Tokens = {};
 
-    Object.keys(allTokens).forEach((accountAddress) => {
-      const checksummedAccountAddress = toChecksumHexAddress(accountAddress);
-      allERC20Tokens[checksummedAccountAddress] = {};
-      Object.keys(allTokens[accountAddress]).forEach((chainId) => {
-        allERC20Tokens[checksummedAccountAddress][chainId] = allTokens[
-          accountAddress
-        ][chainId].filter((asset) => {
+    Object.keys(allTokens).forEach((chainId) => {
+      allERC20Tokens[chainId] = {};
+      Object.keys(allTokens[chainId]).forEach((accountAddress) => {
+        const checksummedAccountAddress = toChecksumHexAddress(accountAddress);
+        allERC20Tokens[chainId][checksummedAccountAddress] = allTokens[chainId][
+          checksummedAccountAddress
+        ].filter((asset) => {
           if (asset.isERC721 === undefined) {
             const checksumAddress = toChecksumHexAddress(asset.address);
             if (contractMap[checksumAddress] !== undefined) {
@@ -1392,7 +1392,7 @@ export default class MetamaskController extends EventEmitter {
       accounts,
       preferences,
       transactions,
-      tokens: allERC20Tokens,
+      tokens: { allTokens: allERC20Tokens, allIgnoredTokens },
       network: this.networkController.store.getState(),
     };
   }
