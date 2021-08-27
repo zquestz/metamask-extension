@@ -21,35 +21,58 @@ function transformState(state) {
   const accountTokens = state?.PreferencesController?.accountTokens;
   const accountHiddenTokens = state?.PreferencesController?.accountHiddenTokens;
 
-  if (accountTokens || accountHiddenTokens) {
-    const flattenedIgnoredTokens = [];
-    if (accountHiddenTokens) {
-      Object.keys(accountHiddenTokens).forEach((accountAddress) => {
-        Object.values(accountHiddenTokens[accountAddress]).forEach(
-          (ignoredTokenArr) => {
-            flattenedIgnoredTokens.push(...ignoredTokenArr);
-          },
-        );
+  const newAllTokens = {};
+  if (accountTokens) {
+    Object.keys(accountTokens).forEach((accountAddress) => {
+      Object.keys(accountTokens[accountAddress]).forEach((chainId) => {
+        const tokensArray = accountTokens[accountAddress][chainId];
+        if (newAllTokens[chainId] === undefined) {
+          newAllTokens[chainId] = { [accountAddress]: tokensArray };
+        } else {
+          newAllTokens[chainId] = {
+            ...newAllTokens[chainId],
+            [accountAddress]: tokensArray,
+          };
+        }
       });
-    }
-
-    if (state.TokensController) {
-      state.TokensController.allTokens = accountTokens;
-      state.TokensController.ignoredTokens = flattenedIgnoredTokens;
-    } else {
-      state.TokensController = {
-        allTokens: accountTokens,
-        ignoredTokens: flattenedIgnoredTokens,
-      };
-    }
-
-    delete state?.PreferencesController?.accountHiddenTokens;
-    delete state?.PreferencesController?.accountTokens;
-    delete state?.PreferencesController?.assetImages;
-    delete state?.PreferencesController?.hiddenTokens;
-    delete state?.PreferencesController?.tokens;
-    delete state?.PreferencesController?.suggestedTokens;
+    });
   }
+
+  const newAllIgnoredTokens = {};
+  if (accountHiddenTokens) {
+    Object.keys(accountHiddenTokens).forEach((accountAddress) => {
+      Object.keys(accountHiddenTokens[accountAddress]).forEach((chainId) => {
+        const ignoredTokensArray = accountHiddenTokens[accountAddress][chainId];
+        if (newAllIgnoredTokens[chainId] === undefined) {
+          newAllIgnoredTokens[chainId] = {
+            [accountAddress]: ignoredTokensArray,
+          };
+        } else {
+          newAllIgnoredTokens[chainId] = {
+            ...newAllIgnoredTokens[chainId],
+            [accountAddress]: ignoredTokensArray,
+          };
+        }
+      });
+    });
+  }
+
+  if (state.TokensController) {
+    state.TokensController.allTokens = newAllTokens;
+    state.TokensController.allIgnoredTokens = newAllIgnoredTokens;
+  } else {
+    state.TokensController = {
+      allTokens: newAllTokens,
+      allIgnoredTokens: newAllIgnoredTokens,
+    };
+  }
+
+  delete state?.PreferencesController?.accountHiddenTokens;
+  delete state?.PreferencesController?.accountTokens;
+  delete state?.PreferencesController?.assetImages;
+  delete state?.PreferencesController?.hiddenTokens;
+  delete state?.PreferencesController?.tokens;
+  delete state?.PreferencesController?.suggestedTokens;
 
   return state;
 }
