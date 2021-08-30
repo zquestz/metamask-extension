@@ -32,6 +32,24 @@ export default class DetectTokensController {
     this.interval = interval;
     this.network = network;
     this.keyringMemStore = keyringMemStore;
+    this.selectedAddress = this.preferences.store.getState().selectedAddress;
+    this.tokenAddresses = this.tokensController.state.tokens.map((token) => {
+      return token.address;
+    });
+    this.hiddenTokens = this.tokensController.state.ignoredTokens;
+
+    preferences.store.subscribe(({ selectedAddress }) => {
+      if (this.selectedAddress !== selectedAddress) {
+        this.selectedAddress = selectedAddress;
+        this.restartTokenDetection();
+      }
+    });
+    tokensController.subscribe(({ tokens = [], ignoredTokens = [] }) => {
+      this.tokenAddresses = tokens.map((token) => {
+        return token.address;
+      });
+      this.hiddenTokens = ignoredTokens;
+    });
   }
 
   /**
@@ -122,34 +140,6 @@ export default class DetectTokensController {
     this._handle = setInterval(() => {
       this.detectNewTokens();
     }, interval);
-  }
-
-  /**
-   * In setter when selectedAddress is changed, detectNewTokens and restart polling
-   * @type {Object}
-   */
-  set preferences(preferences) {
-    if (!preferences) {
-      return;
-    }
-    this._preferences = preferences;
-    const currentTokens = this.tokensController.state.tokens;
-    this.tokenAddresses = currentTokens
-      ? currentTokens.map((token) => token.address)
-      : [];
-    this.hiddenTokens = this.tokensController.state.ignoredTokens;
-    this.tokensController.subscribe(({ tokens = [], ignoredTokens = [] }) => {
-      this.tokenAddresses = tokens.map((token) => {
-        return token.address;
-      });
-      this.hiddenTokens = ignoredTokens;
-    });
-    preferences.store.subscribe(({ selectedAddress }) => {
-      if (this.selectedAddress !== selectedAddress) {
-        this.selectedAddress = selectedAddress;
-        this.restartTokenDetection();
-      }
-    });
   }
 
   /**
