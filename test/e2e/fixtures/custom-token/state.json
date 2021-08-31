@@ -125,8 +125,8 @@
     },
     "TokensController": {
       "allTokens": {
-        "0x5cfe73b6021e818b776b421b1c4db2474086a7e1": {
-          "0x539": [
+        "0x539": {
+          "0x5cfe73b6021e818b776b421b1c4db2474086a7e1": [
             {
               "address": "0x86002be4cdd922de1ccb831582bf99284b99ac12",
               "decimals": 4,
@@ -139,6 +139,7 @@
       },
       "ignoredTokens": [],
       "suggestedAssets": [],
+      "allIgnoredTokens": {},
       "tokens": [
         {
           "address": "0x86002be4cdd922de1ccb831582bf99284b99ac12",
