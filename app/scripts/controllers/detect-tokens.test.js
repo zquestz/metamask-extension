@@ -127,6 +127,12 @@ describe('DetectTokensController', function () {
     );
 
     const tokenAddressToSkip = erc20ContractAddresses[1];
+    const tokenToSkip = contracts[tokenAddressToSkip];
+    await tokensController.addToken(
+      tokenAddressToSkip,
+      tokenToSkip.symbol,
+      tokenToSkip.decimals,
+    );
 
     sandbox
       .stub(controller, '_getTokenBalances')

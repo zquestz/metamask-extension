@@ -32,19 +32,19 @@ export default class DetectTokensController {
     this.interval = interval;
     this.network = network;
     this.keyringMemStore = keyringMemStore;
-    this.selectedAddress = this.preferences.store.getState().selectedAddress;
-    this.tokenAddresses = this.tokensController.state.tokens.map((token) => {
+    this.selectedAddress = this.preferences?.store.getState().selectedAddress;
+    this.tokenAddresses = this.tokensController?.state.tokens.map((token) => {
       return token.address;
     });
-    this.hiddenTokens = this.tokensController.state.ignoredTokens;
+    this.hiddenTokens = this.tokensController?.state.ignoredTokens;
 
-    preferences.store.subscribe(({ selectedAddress }) => {
+    preferences?.store.subscribe(({ selectedAddress }) => {
       if (this.selectedAddress !== selectedAddress) {
         this.selectedAddress = selectedAddress;
         this.restartTokenDetection();
       }
     });
-    tokensController.subscribe(({ tokens = [], ignoredTokens = [] }) => {
+    tokensController?.subscribe(({ tokens = [], ignoredTokens = [] }) => {
       this.tokenAddresses = tokens.map((token) => {
         return token.address;
       });
@@ -87,10 +87,17 @@ export default class DetectTokensController {
       );
       return;
     }
+
     await Promise.all(
       tokensToDetect.map(async (tokenAddress, index) => {
         const balance = result[index];
-        if (balance && !balance.isZero()) {
+        let ignored;
+        if (this.hiddenTokens.length) {
+          ignored = this.hiddenTokens.find((ignoredTokenAddress) =>
+            isEqualCaseInsensitive(ignoredTokenAddress, tokenAddress),
+          );
+        }
+        if (balance && !balance.isZero() && ignored === undefined) {
           await this.tokensController.addToken(
             tokenAddress,
             contracts[tokenAddress].symbol,
