@@ -374,7 +374,7 @@ export default class TransactionController extends EventEmitter {
     } else {
       txMeta.txParams.value = '0x0';
     }
-    
+
     this.addTransaction(txMeta);
     this.emit('newUnapprovedTx', txMeta);
 
