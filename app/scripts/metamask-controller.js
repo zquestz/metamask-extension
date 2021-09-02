@@ -229,7 +229,7 @@ export default class MetamaskController extends EventEmitter {
     this.tokenListController = new TokenListController({
       chainId: hexToDecimal(this.networkController.getCurrentChainId()),
       useStaticTokenList: !this.preferencesController.store.getState()
-        .useStaticTokenList,
+        .useTokenDetection,
       onNetworkStateChange: (cb) =>
         this.networkController.store.subscribe((networkState) => {
           const modifiedNetworkState = {
@@ -246,7 +246,7 @@ export default class MetamaskController extends EventEmitter {
           const modifiedPreferencesState = {
             ...preferencesState,
             useStaticTokenList: !this.preferencesController.store.getState()
-              .useStaticTokenList,
+              .useTokenDetection,
           };
           return cb(modifiedPreferencesState);
         }),
@@ -772,8 +772,8 @@ export default class MetamaskController extends EventEmitter {
       setUseBlockie: this.setUseBlockie.bind(this),
       setUseNonceField: this.setUseNonceField.bind(this),
       setUsePhishDetect: this.setUsePhishDetect.bind(this),
-      setUseStaticTokenList: nodeify(
-        this.preferencesController.setUseStaticTokenList,
+      setUseTokenDetection: nodeify(
+        this.preferencesController.setUseTokenDetection,
         this.preferencesController,
       ),
       setIpfsGateway: this.setIpfsGateway.bind(this),
